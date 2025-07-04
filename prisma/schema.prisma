@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+type ClientsInquiries {
+  createdAt  DateTime @db.Date
+  message    String
+  propertyId String   @db.ObjectId
+}
+
+type PropertiesLocation {
+  address     String
+  city        String
+  coordinates PropertiesLocationCoordinates
+  country     String
+  state       String
+}
+
+type PropertiesLocationCoordinates {
+  lat Float
+  lng Float
+}
+
+model clients {
+  id        String             @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime           @db.Date
+  email     String
+  fullName  String
+  inquiries ClientsInquiries[]
+  phone     String
+}
+
+model inquiries {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  clientEmail String
+  clientName  String
+  clientPhone String
+  message     String
+  propertyId  String   @db.ObjectId
+  submittedAt DateTime @db.Date
+}
+
+model properties {
+  id          String             @id @default(auto()) @map("_id") @db.ObjectId
+  amenities   String[]
+  areaSqFt    Int
+  bathrooms   Int
+  bedrooms    Int
+  createdAt   DateTime           @db.Date
+  description String
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  images      Json?
+  location    PropertiesLocation
+  price       Int
+  status      String
+  title       String
+  type        String
+  updatedAt   DateTime           @db.Date
+}
+
+model property_management {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  @@map("property-management")
+}
+
+model viewings {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  clientId    String   @db.ObjectId
+  createdAt   DateTime @db.Date
+  notes       String
+  propertyId  String   @db.ObjectId
+  status      String
+  updatedAt   DateTime @db.Date
+  viewingDate DateTime @db.Date
+}
