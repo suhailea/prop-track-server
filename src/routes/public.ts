@@ -5,7 +5,7 @@ const router = Router();
 
 // Properties
 router.get('/properties', publicController.listProperties);
-router.get('/properties/:id', publicController.getProperty);
+// router.get('/properties/:id', publicController.getProperty);
 router.post('/properties/:id/inquire', publicController.inquireProperty);
 
 // Search & Filters
