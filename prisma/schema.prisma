@@ -34,6 +34,7 @@ model clients {
   fullName  String
   inquiries ClientsInquiries[]
   phone     String
+  viewings  viewings[]
 }
 
 model inquiries {
@@ -73,10 +74,12 @@ model property_management {
 model viewings {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   clientId    String   @db.ObjectId
+  propertyId  String   @db.ObjectId
   createdAt   DateTime @db.Date
   notes       String
-  propertyId  String   @db.ObjectId
   status      String
   updatedAt   DateTime @db.Date
   viewingDate DateTime @db.Date
+  client      clients  @relation(fields: [clientId], references: [id])
 }
+

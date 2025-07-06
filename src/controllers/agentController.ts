@@ -2,6 +2,17 @@ import { Request, Response } from "express";
 import { PrismaClient } from "../generated/prisma";
 const prisma = new PrismaClient();
 
+const imageUrls = [
+  // Interiors
+  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80", // contemporary kitchen
+  "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=600&q=80", // bright hallway
+  "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=600&q=80", // lawn & facade
+  "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=600&q=80", // house front
+  "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?auto=format&fit=crop&w=600&q=80", // modern villa exterior
+  "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=600&q=80", // classic house exterior
+  "https://images.unsplash.com/photo-1599423300746-b62533397364?auto=format&fit=crop&w=600&q=80", // outdoor patio
+];
+
 // Property Management
 export const listProperties = async (req: Request, res: Response) => {
   try {
@@ -58,10 +69,13 @@ export const listProperties = async (req: Request, res: Response) => {
 
 export const createProperty = async (req: Request, res: Response) => {
   try {
+    if (!req.body.images || req.body.images.length === 0)
+      req.body.images = imageUrls.map((url) => ({ url }));
     const property = await prisma.properties.create({ data: req.body });
     res.status(201).json(property);
   } catch (error) {
-    res.status(500).json({ error: "Failed to create property" });
+    console.log("Error creating property:", error);
+    res.status(500).json({ error: `Failed to create property ${error}` });
   }
 };
 
@@ -151,6 +165,7 @@ export const getClient = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to get client" });
   }
 };
+
 export const updateClient = async (req: Request, res: Response) => {
   try {
     const client = await prisma.clients.update({
@@ -160,82 +175,5 @@ export const updateClient = async (req: Request, res: Response) => {
     res.json(client);
   } catch (error) {
     res.status(500).json({ error: "Failed to update client" });
-  }
-};
-// export const updateClientStatus = async (req: Request, res: Response) => {
-//   try {
-//     const client = await prisma.clients.update({ where: { id: req.params.id }, data: { status: req.body.status } });
-//     res.json(client);
-//   } catch (error) {
-//     res.status(500).json({ error: 'Failed to update client status' });
-//   }
-// };
-
-// Viewing Management
-export const listViewings = async (req: Request, res: Response) => {
-  try {
-    const viewings = await prisma.viewings.findMany();
-    res.json(viewings);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to list viewings" });
-  }
-};
-export const createViewing = async (req: Request, res: Response) => {
-  try {
-    const viewing = await prisma.viewings.create({ data: req.body });
-    res.status(201).json(viewing);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to create viewing" });
-  }
-};
-export const updateViewing = async (req: Request, res: Response) => {
-  try {
-    const viewing = await prisma.viewings.update({
-      where: { id: req.params.id },
-      data: req.body,
-    });
-    res.json(viewing);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to update viewing" });
-  }
-};
-export const updateViewingStatus = async (req: Request, res: Response) => {
-  try {
-    const viewing = await prisma.viewings.update({
-      where: { id: req.params.id },
-      data: { status: req.body.status },
-    });
-    res.json(viewing);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to update viewing status" });
-  }
-};
-
-// Inquiry Management
-export const listInquiries = async (req: Request, res: Response) => {
-  try {
-    const inquiries = await prisma.inquiries.findMany();
-    res.json(inquiries);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to list inquiries" });
-  }
-};
-export const getInquiry = async (req: Request, res: Response) => {
-  try {
-    const inquiry = await prisma.inquiries.findUnique({
-      where: { id: req.params.id },
-    });
-    if (!inquiry) return res.status(404).json({ error: "Inquiry not found" });
-    res.json(inquiry);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to get inquiry" });
-  }
-};
-export const respondToInquiry = async (req: Request, res: Response) => {
-  try {
-    // Example: add a response field or update status (not in schema, so just echo for now)
-    res.json({ message: "Responded to inquiry", id: req.params.id });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to respond to inquiry" });
   }
 };
