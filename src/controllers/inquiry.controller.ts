@@ -27,7 +27,6 @@ export const createInquiry = async (req: Request, res: Response) => {
 export const getSchedules = async (req: Request, res: Response) => {
   try {
     const { date } = req.body;
-    console.log("Received date:", date);
 
     const targetDate = new Date(date);
     const dayStart = startOfDay(targetDate);

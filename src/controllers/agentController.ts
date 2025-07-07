@@ -17,7 +17,6 @@ const imageUrls = [
 export const listProperties = async (req: Request, res: Response) => {
   try {
     const { page, pageSize, filter } = req.body;
-    console.log("Listing properties", page, pageSize, filter);
 
     // Build dynamic where object
     const where: any = {};
@@ -114,12 +113,14 @@ export const deleteProperty = async (req: Request, res: Response) => {
 
 export const archiveProperty = async (req: Request, res: Response) => {
   try {
+    console.log("Archiving property", req.params.id);
     const property = await prisma.properties.update({
       where: { id: req.params.id },
       data: { status: "archived" },
     });
     res.json(property);
   } catch (error) {
+    console.log("Error archiving property:", error);
     res.status(500).json({ error: "Failed to archive property" });
   }
 };
