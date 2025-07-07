@@ -1,194 +1,125 @@
-# PropTrack Server
+PropTrack Server
 
-A backend API for a real estate listings and client management platform, supporting both public property search and agent dashboard features.
+A RESTful API backend for a property management platform built with Node.js, Express, TypeScript, MongoDB, and Prisma.
 
-## Project Structure
+Supports:
 
-```
+🏘️ Public property listings
+🧑‍💼 Agent dashboards for managing properties, clients, and inquiries
+
+🧱 Project Structure
+
 prop-track-server/
-├── package.json
-├── package-lock.json
-├── README.md
-├── seed.ts
-├── tsconfig.json
-├── prisma/
-│   └── schema.prisma
-└── src/
-    ├── controllers/
-    │   ├── agentController.ts
-    │   ├── inquiry.controller.ts
-    │   └── publicController.ts
-    ├── generated/
-    ├── index.ts
-    └── routes/
-        ├── agent.ts
-        ├── index.ts
-        ├── inquiry.ts
-        └── public.ts
-```
+🍜 prisma/               # Prisma schema
+🍜 src/
+    🍜 controllers/      # Route handlers
+    🍜 routes/           # Express routes
+    🍜 generated/        # Prisma-generated types
+    🍜 index.ts          # App entry point
+🍜 seed.ts               # Sample data generator
+🍜 .env                  # Environment config
+🍜 package.json
+🍜 tsconfig.json
 
-## Tech Stack
+⚙️ Tech Stack
 
-- **Node.js** + **Express.js** (API server)
-- **MongoDB** (database, via Mongoose ODM)
-- **Prisma** (schema management)
-- **TypeScript** (type safety)
+Node.js + Express.js
+MongoDB via Mongoose
+TypeScript
+Prisma ORM
 
-## Features
 
-- Public property search with advanced filters and pagination
-- Agent dashboard for managing properties, clients, viewings, and inquiries
-- RESTful API design with clear separation of concerns
-- Scalable to 10,000+ property listings
+🔧 Getting Started
+Prerequisites
+Node.js (v16+)
+MongoDB running locally or via MongoDB Atlas
 
-## Getting Started
 
-### Prerequisites
+Installation & Setup
 
-- Node.js (v16+ recommended)
-- MongoDB (local or remote instance)
+git clone <repo-url>
+cd prop-track-server
+npm install
 
-### Installation
+Create a .env file:
+DATABASE_URL="mongodb+srv://proptrack_new:du4s2SKDLmZzLe7K@proptrack.fvlw0qm.mongodb.net/property-management?retryWrites=true&w=majority&ssl=true&connectTimeoutMS=5000"
 
-1. Clone the repository:
-   ```bash
-   git clone <repo-url>
-   cd prop-track-server
-   ```
+Optional: Seed the DB with mock data
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+npx ts-node seed.ts
 
-3. Set up environment variables:
-   - Copy and edit as needed:
-     ```
-     DATABASE_URL=mongodb://localhost:27017/proptrack
-     ```
+Start the server:
 
-4. (Optional) Seed the database:
-   ```bash
-   npx ts-node seed.ts
-   ```
-
-### Running the Server
-
-```bash
 npm run dev
-```
-or
-```bash
-npx ts-node src/index.ts
-```
 
-## API Overview
+🔪 API Overview
 
-- **Public Endpoints:** `/api/public/properties`, `/api/public/properties/:id`, `/api/public/properties/:id/inquire`, etc.
-- **Agent Endpoints:** `/api/agent/properties`, `/api/agent/clients`, `/api/agent/viewings`, `/api/agent/inquiries`, etc.
+Public Routes
 
-See the full API specification in the Product Requirements Document (PRD) or below.
+GET /api/public/properties – List properties
 
-## Development
+GET /api/public/properties/:id – View property detail
 
-- Source code in `src/`
-- Controllers in `src/controllers/`
-- Routes in `src/routes/`
-- Prisma schema in `prisma/schema.prisma`
+POST /api/public/properties/:id/inquire – Submit inquiry
 
-## How to Run the App from Scratch
+Agent Routes
 
-1. **Clone the repository:**
-   ```bash
-   git clone <repo-url>
-   cd prop-track-server
-   ```
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-3. **Set up environment variables:**
-   - Create a `.env` file in the root directory with:
-     ```
-     DATABASE_URL=mongodb://localhost:27017/proptrack
-     ```
-4. **(Optional) Seed the database:**
-   ```bash
-   npx ts-node seed.ts
-   ```
-5. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
-   or
-   ```bash
-   npx ts-node src/index.ts
-   ```
+GET /api/agent/properties – View/manage agent listings
 
-## Screenshots & Demo
+GET /api/agent/inquiries – View inquiries
 
-> _Add screenshots of the main views here. If you have a video demo, link it or embed a GIF._
+POST /api/agent/properties – Add new property
 
-- ![Public Property Search](screenshots/public-search.png)
-- ![Agent Dashboard](screenshots/agent-dashboard.png)
-- [Video Demo (optional)](link-to-demo)
 
-## Assumptions Made
 
-- MongoDB is running locally on the default port.
-- No authentication is required for MVP endpoints.
-- File uploads are stored locally (not in cloud storage).
-- Agents and clients are managed via API only (no admin UI).
-- The app is run in a development environment.
+📝 Assumptions
 
-## Technical Choices & Rationale
+No authentication required for MVP
 
-- **Node.js + Express.js:** Popular, well-supported, and fast for building REST APIs.
-- **MongoDB with Mongoose:** Flexible schema for evolving requirements and fast querying for large datasets.
-- **TypeScript:** Type safety and better developer experience.
-- **Prisma:** For schema management and future extensibility.
-- **Modular Structure:** Clear separation of controllers, routes, and models for maintainability.
 
-## Future Plans & Improvements
+⚒️ Technical Decisions
 
-- Add authentication and role-based authorization (JWT).
-- Implement advanced search with AI recommendations.
-- Integrate Redis for caching and performance.
-- Add real-time notifications (e.g., for new inquiries or viewings).
-- Move file storage to a cloud provider (e.g., AWS S3).
-- Add comprehensive test coverage (unit, integration, E2E).
-- Build a web-based admin dashboard for agents.
+Express + TypeScript: Clean structure, robust typing
+Prisma: Simple schema modeling
+Mongoose: MongoDB querying and validation
+Modular structure: For easier scaling
 
-## Stretch Goals & Bonus Features
 
-- Implemented soft delete for properties (archiving instead of hard delete).
-- Added aggregation pipelines for efficient property search.
-- Designed for scalability to 10,000+ listings.
-- Provided a seed script for easy local setup.
+🚀 Future Enhancements
 
-## Shortcuts & Compromises
+JWT-based authentication and role-based access
+Cloud storage (S3) for image uploads
+Add Redis caching
+Real-time updates (Socket.io)
+Admin dashboard UI
+Unit & integration tests
 
-- Minimal error handling and validation for MVP endpoints.
-- No authentication/authorization in the initial version.
-- No production-ready logging or monitoring.
-- File uploads are local only (no CDN or cloud storage).
 
-## Time Spent
+⭐ Stretch Goals Achieved
 
-> _Total time spent: **X hours** (please fill in your actual time)_
+Soft delete support for properties
+Aggregated property filtering
+Scalable architecture for 10,000+ records
 
-## Resources, Tools, & Technologies Used
+⚠️ Shortcuts / Compromises
 
-- Node.js, Express.js
-- MongoDB, Mongoose
-- TypeScript
-- Prisma
-- Postman (for API testing)
-- VSCode
-- [Any other tools you used]
+Minimal validation
+No auth or file hosting
+Logging/monitoring left out
 
-## Additional Notes
+⏱️ Time Spent
 
-- The project is designed for easy extensibility and future enhancements.
-- Please reach out if you have any questions or need a walkthrough.
+~02 - 04 hours
 
+🧰 Tools & Resources
+
+Node.js, Express.js
+MongoDB,
+Prisma
+Postman
+TypeScript
+Cursor
+
+🙌 Final Notes
+
+Thank you for reviewing this assessment. The codebase is structured for clarity, scalability, and easy handoff. I’m happy to provide a live demo or walkthrough if needed.
