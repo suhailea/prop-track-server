@@ -18,49 +18,78 @@ export const listProperties = async (req: Request, res: Response) => {
   try {
     const { page, pageSize, filter } = req.body;
 
-    // Build dynamic where object
-    const where: any = {};
-    where.status = "Available"; // Only list active properties
-    if (filter) {
-      if (filter.location) {
-        where.location = { contains: filter.location, mode: "insensitive" };
-      }
-      if (filter.type) {
-        where.type = filter.type;
-      }
-      if (filter.minPrice || filter.maxPrice) {
-        where.price = {};
-        if (filter.minPrice) where.price.gte = Number(filter.minPrice);
-        if (filter.maxPrice) where.price.lte = Number(filter.maxPrice);
-      }
-      if (
-        filter.amenities &&
-        Array.isArray(filter.amenities) &&
-        filter.amenities.length > 0
-      ) {
-        where.amenities = { hasEvery: filter.amenities };
-      }
-      if (filter.bedrooms) {
-        where.bedrooms = { gte: Number(filter.bedrooms) };
-      }
-      if (filter.bathrooms) {
-        where.bathrooms = { gte: Number(filter.bathrooms) };
-      }
+    const pipeline: any[] = [{ $match: { status: "Available" } }];
+
+    if (filter?.location) {
+      pipeline.push({
+        $match: {
+          location: { $regex: filter.location, $options: "i" },
+        },
+      });
+    }
+    if (filter?.type) {
+      pipeline.push({ $match: { type: filter.type } });
+    }
+    if (filter?.minPrice || filter?.maxPrice) {
+      const priceFilter: any = {};
+      if (filter.minPrice) priceFilter.$gte = Number(filter.minPrice);
+      if (filter.maxPrice) priceFilter.$lte = Number(filter.maxPrice);
+      pipeline.push({ $match: { price: priceFilter } });
+    }
+    if (filter?.amenities?.length > 0) {
+      pipeline.push({
+        $match: {
+          amenities: { $all: filter.amenities },
+        },
+      });
+    }
+    if (filter?.bedrooms) {
+      pipeline.push({
+        $match: { bedrooms: { $gte: Number(filter.bedrooms) } },
+      });
+    }
+    if (filter?.bathrooms) {
+      pipeline.push({
+        $match: { bathrooms: { $gte: Number(filter.bathrooms) } },
+      });
     }
 
-    const [count, properties] = await Promise.all([
-      prisma.properties.count({ where }),
-      prisma.properties.findMany({
-        where,
-        skip: page
-          ? (parseInt(page as string) - 1) *
-            (parseInt(pageSize as string) || 10)
-          : 0,
-        take: pageSize ? parseInt(pageSize as string) : 10,
-        orderBy: { createdAt: "desc" },
-      }),
-    ]);
-    res.json({ total: count, properties });
+    // Build Prisma where clause based on filters
+    const where: any = { status: "Available" };
+
+    if (filter?.location) {
+      where.location = { contains: filter.location, mode: "insensitive" };
+    }
+    if (filter?.type) {
+      where.type = filter.type;
+    }
+    if (filter?.minPrice || filter?.maxPrice) {
+      where.price = {};
+      if (filter.minPrice) where.price.gte = Number(filter.minPrice);
+      if (filter.maxPrice) where.price.lte = Number(filter.maxPrice);
+    }
+    if (filter?.amenities?.length > 0) {
+      where.amenities = { hasEvery: filter.amenities };
+    }
+    if (filter?.bedrooms) {
+      where.bedrooms = { gte: Number(filter.bedrooms) };
+    }
+    if (filter?.bathrooms) {
+      where.bathrooms = { gte: Number(filter.bathrooms) };
+    }
+
+    // Count total
+    const total = await prisma.properties.count({ where });
+
+    // Fetch paginated properties
+    const properties = await prisma.properties.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: ((page || 1) - 1) * (pageSize || 10),
+      take: pageSize || 10,
+    });
+
+    res.json({ total, properties });
   } catch (error) {
     res.status(500).json({ error: "Failed to list properties" });
   }
